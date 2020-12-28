@@ -82,10 +82,11 @@ public class Elections {
 
                 for (int i = 0; i < votesWithoutDistricts.size(); i++) {
                     String candidate = candidates.get(i);
+                    Integer currentCandidateVotes = votesWithoutDistricts.get(i);
                     if (officialCandidates.contains(candidate)) {
-                        results.put(candidate, frenchFormattedResult(((float) votesWithoutDistricts.get(i) * 100) / nbValidVotes));
+                        results.put(candidate, frenchFormattedResult(votingResult(currentCandidateVotes, this.nbValidVotes)));
                     } else {
-                        countBlankOrNullVotes(candidate, votesWithoutDistricts.get(i));
+                        countBlankOrNullVotes(candidate, currentCandidateVotes);
                     }
                 }
             } else {
@@ -112,7 +113,7 @@ public class Elections {
                     for (int i = 0; i < districtVotes.size(); i++) {
                         float candidateResult = 0;
                         if (nbValidVotes != 0)
-                            candidateResult = ((float) districtVotes.get(i) * 100) / nbValidVotes;
+                            candidateResult = votingResult(districtVotes.get(i), nbValidVotes);
                         String candidate = candidates.get(i);
                         if (officialCandidates.contains(candidate)) {
                             districtResult.add(candidateResult);
@@ -133,14 +134,17 @@ public class Elections {
                 }
             }
 
-            results.put("Blank", frenchFormattedResult(((float) blankVotes * 100) / nbVotes));
-
-            results.put("Null", frenchFormattedResult(((float) nullVotes * 100) / nbVotes));
+            results.put("Blank", frenchFormattedResult(votingResult(blankVotes, nbVotes)));
+            results.put("Null", frenchFormattedResult(votingResult(nullVotes, nbVotes)));
 
             int nbElectors = list.values().stream().map(List::size).reduce(0, Integer::sum);
-            results.put("Abstention", frenchFormattedResult(100 - ((float) nbVotes * 100 / nbElectors)));
+            results.put("Abstention", frenchFormattedResult(100 - (votingResult(nbVotes, nbElectors))));
 
             return results;
+        }
+
+        private float votingResult(float currentCandidateVotes, int totalVotes) {
+            return (currentCandidateVotes * 100) / totalVotes;
         }
 
         private String frenchFormattedResult(float rawResultValue) {

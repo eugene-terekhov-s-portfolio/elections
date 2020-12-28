@@ -57,23 +57,22 @@ public class Elections {
     }
 
     public Map<String, String> results() {
-        return new ResultsCalculator(0, 0, 0, 0).invoke();
+        return new ResultsCalculator().invoke();
     }
 
     private class ResultsCalculator {
-        private Map<String, String> results;
+        private final Map<String, String> results;
         private Integer nbVotes;
         private Integer nullVotes;
         private Integer blankVotes;
         private int nbValidVotes;
 
-        public ResultsCalculator(Integer nbVotes, Integer nullVotes, Integer blankVotes, int nbValidVotes) {
-            Map<String, String> results = new HashMap<>();
-            this.results = results;
-            this.nbVotes = nbVotes;
-            this.nullVotes = nullVotes;
-            this.blankVotes = blankVotes;
-            this.nbValidVotes = nbValidVotes;
+        public ResultsCalculator() {
+            this.results = new HashMap<>();
+            this.nbVotes = 0;
+            this.nullVotes = 0;
+            this.blankVotes = 0;
+            this.nbValidVotes = 0;
         }
 
         public Map<String, String> invoke() {
@@ -85,16 +84,12 @@ public class Elections {
                 }
 
                 for (int i = 0; i < votesWithoutDistricts.size(); i++) {
-                    Float candidatResult = ((float)votesWithoutDistricts.get(i) * 100) / nbValidVotes;
+                    Float candidatResult = ((float) votesWithoutDistricts.get(i) * 100) / nbValidVotes;
                     String candidate = candidates.get(i);
                     if (officialCandidates.contains(candidate)) {
                         results.put(candidate, String.format(Locale.FRENCH, "%.2f%%", candidatResult));
                     } else {
-                        if (candidates.get(i).isEmpty()) {
-                            blankVotes += votesWithoutDistricts.get(i);
-                        } else {
-                            nullVotes += votesWithoutDistricts.get(i);
-                        }
+                        countBlankOrNullVotes(candidate, votesWithoutDistricts.get(i));
                     }
                 }
             } else {
@@ -121,16 +116,12 @@ public class Elections {
                     for (int i = 0; i < districtVotes.size(); i++) {
                         float candidateResult = 0;
                         if (nbValidVotes != 0)
-                            candidateResult = ((float)districtVotes.get(i) * 100) / nbValidVotes;
+                            candidateResult = ((float) districtVotes.get(i) * 100) / nbValidVotes;
                         String candidate = candidates.get(i);
                         if (officialCandidates.contains(candidate)) {
                             districtResult.add(candidateResult);
                         } else {
-                            if (candidates.get(i).isEmpty()) {
-                                blankVotes += districtVotes.get(i);
-                            } else {
-                                nullVotes += districtVotes.get(i);
-                            }
+                            countBlankOrNullVotes(candidate, districtVotes.get(i));
                         }
                     }
                     int districtWinnerIndex = 0;
@@ -146,10 +137,10 @@ public class Elections {
                 }
             }
 
-            float blankResult = ((float)blankVotes * 100) / nbVotes;
+            float blankResult = ((float) blankVotes * 100) / nbVotes;
             results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
 
-            float nullResult = ((float)nullVotes * 100) / nbVotes;
+            float nullResult = ((float) nullVotes * 100) / nbVotes;
             results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
 
             int nbElectors = list.values().stream().map(List::size).reduce(0, Integer::sum);
@@ -159,6 +150,14 @@ public class Elections {
             results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
 
             return results;
+        }
+
+        private void countBlankOrNullVotes(String candidate, Integer tempVotes) {
+            if (candidate.isEmpty()) {
+                this.blankVotes += tempVotes;
+            } else {
+                this.nullVotes += tempVotes;
+            }
         }
     }
 }

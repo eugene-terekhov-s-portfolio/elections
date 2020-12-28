@@ -8,8 +8,8 @@ public class Elections {
     List<String> officialCandidates = new ArrayList<>();
     ArrayList<Integer> votesWithoutDistricts = new ArrayList<>();
     Map<String, ArrayList<Integer>> votesWithDistricts;
-    private Map<String, List<String>> list;
-    private boolean withDistrict;
+    private final Map<String, List<String>> list;
+    private final boolean withDistrict;
 
     public Elections(Map<String, List<String>> list, boolean withDistrict) {
         this.list = list;
@@ -30,7 +30,7 @@ public class Elections {
         votesWithDistricts.get("District 3").add(0);
     }
 
-    public void voteFor(String elector, String candidate, String electorDistrict) {
+    public void voteFor(String candidate, String electorDistrict) {
         if (!withDistrict) {
             if (candidates.contains(candidate)) {
                 int index = candidates.indexOf(candidate);
@@ -47,9 +47,7 @@ public class Elections {
                     districtVotes.set(index, districtVotes.get(index) + 1);
                 } else {
                     candidates.add(candidate);
-                    votesWithDistricts.forEach((district, votes) -> {
-                        votes.add(0);
-                    });
+                    votesWithDistricts.forEach((district, votes) -> votes.add(0));
                     districtVotes.set(candidates.size() - 1, districtVotes.get(candidates.size() - 1) + 1);
                 }
             }
@@ -78,8 +76,8 @@ public class Elections {
         public Map<String, String> invoke() {
             if (!withDistrict) {
                 nbVotes = votesWithoutDistricts.stream().reduce(0, Integer::sum);
-                for (int i = 0; i < officialCandidates.size(); i++) {
-                    int index = candidates.indexOf(officialCandidates.get(i));
+                for (String officialCandidate : officialCandidates) {
+                    int index = candidates.indexOf(officialCandidate);
                     nbValidVotes += votesWithoutDistricts.get(index);
                 }
 
@@ -98,8 +96,8 @@ public class Elections {
                     nbVotes += districtVotes.stream().reduce(0, Integer::sum);
                 }
 
-                for (int i = 0; i < officialCandidates.size(); i++) {
-                    int index = candidates.indexOf(officialCandidates.get(i));
+                for (String officialCandidate : officialCandidates) {
+                    int index = candidates.indexOf(officialCandidate);
                     for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
                         ArrayList<Integer> districtVotes = entry.getValue();
                         nbValidVotes += districtVotes.get(index);

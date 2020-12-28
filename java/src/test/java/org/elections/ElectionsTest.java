@@ -23,15 +23,15 @@ class ElectionsTest {
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
 
-        elections.voteFor("Bob", "Jerry", "District 1");
-        elections.voteFor("Jerry", "Jerry", "District 2");
-        elections.voteFor("Anna", "Johnny", "District 1");
-        elections.voteFor("Johnny", "Johnny", "District 3");
-        elections.voteFor("Matt", "Donald", "District 3");
-        elections.voteFor("Jess", "Joe", "District 1");
-        elections.voteFor("Simon", "", "District 2");
-        elections.voteFor("Carole", "", "District 3");
-        elections.voteFor("Eugene", "", "District 4");
+        elections.voteFor("Jerry", "District 1");
+        elections.voteFor("Jerry", "District 2");
+        elections.voteFor("Johnny", "District 1");
+        elections.voteFor("Johnny", "District 3");
+        elections.voteFor("Donald", "District 3");
+        elections.voteFor("Joe", "District 1");
+        elections.voteFor("", "District 2");
+        elections.voteFor("", "District 3");
+        elections.voteFor("", "District 4");
 
         Map<String, String> results = elections.results();
 
@@ -58,16 +58,16 @@ class ElectionsTest {
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
 
-        elections.voteFor("Bob", "Jerry", "District 1");
-        elections.voteFor("Anna", "Johnny", "District 1");
-        elections.voteFor("Jess", "Joe", "District 1");
-        elections.voteFor("July", "Jerry", "District 1");
-        elections.voteFor("Jerry", "Jerry", "District 2");
-        elections.voteFor("Simon", "", "District 2");
-        elections.voteFor("Johnny", "Johnny", "District 3");
-        elections.voteFor("Matt", "Michel", "District 3");
-        elections.voteFor("Carole", "", "District 3");
-        elections.voteFor("Eugene", "Michel", "District 4");
+        elections.voteFor("Jerry", "District 1");
+        elections.voteFor("Johnny", "District 1");
+        elections.voteFor("Joe", "District 1");
+        elections.voteFor("Jerry", "District 1");
+        elections.voteFor("Jerry", "District 2");
+        elections.voteFor("", "District 2");
+        elections.voteFor("Johnny", "District 3");
+        elections.voteFor("Michel", "District 3");
+        elections.voteFor("", "District 3");
+        elections.voteFor("Michel", "District 4");
 
         Map<String, String> results = elections.results();
 

@@ -1,6 +1,5 @@
 package org.elections;
 
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class Elections {
@@ -142,8 +141,6 @@ public class Elections {
             results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
 
             int nbElectors = list.values().stream().map(List::size).reduce(0, Integer::sum);
-            DecimalFormat df = new DecimalFormat();
-            df.setMaximumFractionDigits(2);
             float abstentionResult = 100 - ((float) nbVotes * 100 / nbElectors);
             results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
 

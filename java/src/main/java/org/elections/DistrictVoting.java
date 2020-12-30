@@ -21,7 +21,8 @@ public class DistrictVoting extends BaseVoting implements Voting {
     }
 
     @Override
-    public void addVote(String candidate, String electorDistrict) {
+    public void addVote(Elector elector, String candidate) {
+        String electorDistrict = elector.getDistrict();
         if (this.votesWithDistricts.containsKey(electorDistrict)) {
             List<Integer> districtVotes = this.votesWithDistricts.get(electorDistrict);
             if (candidates.contains(candidate)) {

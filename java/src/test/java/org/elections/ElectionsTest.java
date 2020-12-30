@@ -1,19 +1,25 @@
 package org.elections;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class ElectionsTest {
 
     private static final String DISTRICT_1 = "District 1";
+    private static final Elector JESS = new Elector("Jess", DISTRICT_1);
+    private static final Elector ANNA = new Elector("Anna", DISTRICT_1);
+    private static final Elector BOB = new Elector("Bob", DISTRICT_1);
+    private static final Elector JULY = new Elector("July", DISTRICT_1);
     private static final String DISTRICT_2 = "District 2";
+    private static final Elector JERRY = new Elector("Jerry", DISTRICT_2);
+    private static final Elector SIMON = new Elector("Simon", DISTRICT_2);
     private static final String DISTRICT_3 = "District 3";
-    private static final String DISTRICT_4 = "District 4";
+    private static final Elector JOHNNY = new Elector("Johnny", DISTRICT_3);
+    private static final Elector CAROLE = new Elector("Carole", DISTRICT_3);
+    private static final Elector MATT = new Elector("Matt", DISTRICT_3);
     private static final Map<String, List<String>> ELECTORS_BY_DISTRICT = Map.of(
             DISTRICT_1, Arrays.asList("Bob", "Anna", "Jess", "July"),
             DISTRICT_2, Arrays.asList("Jerry", "Simon"),
@@ -27,14 +33,14 @@ class ElectionsTest {
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
 
-        elections.voteFor("Jerry", "District 1");
-        elections.voteFor("Jerry", "District 2");
-        elections.voteFor("Johnny", "District 1");
-        elections.voteFor("Johnny", "District 3");
-        elections.voteFor("Donald", "District 3");
-        elections.voteFor("Joe", "District 1");
-        elections.voteFor("", "District 2");
-        elections.voteFor("", "District 3");
+        elections.voteFor(BOB, "Jerry");
+        elections.voteFor(ANNA, "Johnny");
+        elections.voteFor(JESS, "Joe");
+        elections.voteFor(SIMON, "Jerry");
+        elections.voteFor(JERRY, "");
+        elections.voteFor(MATT, "Johnny");
+        elections.voteFor(CAROLE, "Donald");
+        elections.voteFor(JOHNNY, "");
 
         Map<String, String> results = elections.results();
 
@@ -55,15 +61,15 @@ class ElectionsTest {
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
 
-        elections.voteFor("Jerry", "District 1");
-        elections.voteFor("Jerry", "District 2");
-        elections.voteFor("Johnny", "District 1");
-        elections.voteFor("Johnny", "District 3");
-        elections.voteFor("Donald", "District 3");
-        elections.voteFor("Joe", "District 1");
-        elections.voteFor("Jerry", "District 1");
-        elections.voteFor("", "District 2");
-        elections.voteFor("", "District 3");
+        elections.voteFor(BOB,"Jerry");
+        elections.voteFor(ANNA, "Johnny");
+        elections.voteFor(JESS, "Joe");
+        elections.voteFor(JULY, "Jerry");
+        elections.voteFor(SIMON, "Jerry");
+        elections.voteFor(JERRY, "");
+        elections.voteFor(CAROLE,"Johnny");
+        elections.voteFor(MATT, "Donald");
+        elections.voteFor(JOHNNY, "");
 
         Map<String, String> results = elections.results();
 

@@ -14,7 +14,7 @@ public class AllVoting extends BaseVoting implements Voting {
     }
 
     @Override
-    public void addVote(String candidate, String electorDistrict) {
+    public void addVote(Elector elector, String candidate) {
         if (candidates.contains(candidate)) {
             int index = this.candidates.indexOf(candidate);
             this.votesWithoutDistricts.set(index, this.votesWithoutDistricts.get(index) + 1);

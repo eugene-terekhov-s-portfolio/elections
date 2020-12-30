@@ -6,7 +6,7 @@ import java.util.Map;
 public interface Voting {
     void addCandidate(String candidate);
 
-    void addVote(String candidate, String electorDistrict);
+    void addVote(Elector elector, String candidate);
 
     Map<String, String> results(Map<String, List<String>> electorsByDistrict);
 

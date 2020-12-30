@@ -19,7 +19,7 @@ public class AllVotes implements Voting {
     }
 
     @Override
-    public void addVote(String candidate, String district) {
+    public void addVote(String candidate, String electorDistrict) {
         if (candidates.contains(candidate)) {
             int index = this.candidates.indexOf(candidate);
             this.votesWithoutDistricts.set(index, this.votesWithoutDistricts.get(index) + 1);

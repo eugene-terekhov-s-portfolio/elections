@@ -1,130 +1,32 @@
 package org.elections;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
 public class Elections {
-    List<String> candidates = new ArrayList<>();
-    List<String> officialCandidates = new ArrayList<>();
-    Map<String, ArrayList<Integer>> votesWithDistricts;
     private final Map<String, List<String>> electorsByDistrict;
-    private final boolean withDistrict;
-    private Voting votingStrategy;
+    private final Voting votingStrategy;
 
     public Elections(Map<String, List<String>> electorsByDistrict, boolean withDistrict) {
         this.electorsByDistrict = electorsByDistrict;
-        this.withDistrict = withDistrict;
 
-        if (!this.withDistrict) {
+        if (!withDistrict) {
             votingStrategy = new AllVotes();
         } else {
-            votesWithDistricts = electorsByDistrict.keySet().stream()
-                    .collect(Collectors.toMap(k -> k, v -> new ArrayList<>()));
+            votingStrategy = new DistrictVotes(electorsByDistrict);
         }
     }
 
     public void addCandidate(String candidate) {
-        officialCandidates.add(candidate);
-        candidates.add(candidate);
-
-        if (!this.withDistrict) {
-            votingStrategy.addCandidate(candidate);
-        } else {
-            votesWithDistricts.forEach((k,v) -> v.add(0));
-        }
+        votingStrategy.addCandidate(candidate);
     }
 
     public void voteFor(String candidate, String electorDistrict) {
-        if (!withDistrict) {
-            votingStrategy.addVote(candidate, electorDistrict);
-        } else {
-            if (votesWithDistricts.containsKey(electorDistrict)) {
-                ArrayList<Integer> districtVotes = votesWithDistricts.get(electorDistrict);
-                if (candidates.contains(candidate)) {
-                    int index = candidates.indexOf(candidate);
-                    districtVotes.set(index, districtVotes.get(index) + 1);
-                } else {
-                    candidates.add(candidate);
-                    votesWithDistricts.forEach((district, votes) -> votes.add(0));
-                    districtVotes.set(candidates.size() - 1, districtVotes.get(candidates.size() - 1) + 1);
-                }
-            }
-        }
+        votingStrategy.addVote(candidate, electorDistrict);
     }
 
     public Map<String, String> results() {
-        final Map<String, String> results = new HashMap<>();
-        Integer nbVotes = 0;
-        Integer nullVotes = 0;
-        Integer blankVotes = 0;
-        int nbValidVotes = 0;
-
-        if (!withDistrict) {
-            return votingStrategy.results(electorsByDistrict);
-        } else {
-            for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-                ArrayList<Integer> districtVotes = entry.getValue();
-                nbVotes += districtVotes.stream().reduce(0, Integer::sum);
-            }
-
-            for (String officialCandidate : officialCandidates) {
-                int index = candidates.indexOf(officialCandidate);
-                for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-                    ArrayList<Integer> districtVotes = entry.getValue();
-                    nbValidVotes += districtVotes.get(index);
-                }
-            }
-
-            Map<String, Integer> officialCandidatesResult = new HashMap<>();
-            for (int i = 0; i < officialCandidates.size(); i++) {
-                officialCandidatesResult.put(candidates.get(i), 0);
-            }
-            for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-                ArrayList<Float> districtResult = new ArrayList<>();
-                ArrayList<Integer> districtVotes = entry.getValue();
-                for (int i = 0; i < districtVotes.size(); i++) {
-                    float candidateResult = 0;
-                    if (nbValidVotes != 0)
-                        candidateResult = votingResult(districtVotes.get(i), nbValidVotes);
-                    String candidate = candidates.get(i);
-                    if (officialCandidates.contains(candidate)) {
-                        districtResult.add(candidateResult);
-                    } else {
-                        Integer tempVotes = districtVotes.get(i);
-                        if (candidate.isEmpty()) {
-                            blankVotes += tempVotes;
-                        } else {
-                            nullVotes += tempVotes;
-                        }
-                    }
-                }
-                int districtWinnerIndex = 0;
-                for (int i = 1; i < districtResult.size(); i++) {
-                    if (districtResult.get(districtWinnerIndex) < districtResult.get(i))
-                        districtWinnerIndex = i;
-                }
-                officialCandidatesResult.put(candidates.get(districtWinnerIndex), officialCandidatesResult.get(candidates.get(districtWinnerIndex)) + 1);
-            }
-            for (int i = 0; i < officialCandidatesResult.size(); i++) {
-                float ratioCandidate = ((float) officialCandidatesResult.get(candidates.get(i))) / officialCandidatesResult.size() * 100;
-                results.put(candidates.get(i), frenchFormattedResult(ratioCandidate));
-            }
-        }
-
-        results.put("Blank", frenchFormattedResult(votingResult(blankVotes, nbVotes)));
-        results.put("Null", frenchFormattedResult(votingResult(nullVotes, nbVotes)));
-
-        int nbElectors = electorsByDistrict.values().stream().map(List::size).reduce(0, Integer::sum);
-        results.put("Abstention", frenchFormattedResult(100 - (votingResult(nbVotes, nbElectors))));
-
-        return results;
+        return votingStrategy.results(electorsByDistrict);
     }
 
-    private float votingResult(float currentCandidateVotes, int totalVotes) {
-        return (currentCandidateVotes * 100) / totalVotes;
-    }
-
-    private String frenchFormattedResult(float rawResultValue) {
-        return String.format(Locale.FRENCH, "%.2f%%", rawResultValue);
-    }
 }

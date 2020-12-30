@@ -3,8 +3,10 @@ package org.elections;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ElectionsTest {
 
@@ -49,7 +51,7 @@ class ElectionsTest {
                 "Blank", "25,00%",
                 "Null", "25,00%",
                 "Abstention", "11,11%");
-        Assertions.assertThat(results).isEqualTo(expectedResults);
+        assertThat(results).isEqualTo(expectedResults);
     }
 
     @Test
@@ -75,6 +77,31 @@ class ElectionsTest {
                 "Blank", "22,22%",
                 "Null", "22,22%",
                 "Abstention", "0,00%");
-        Assertions.assertThat(results).isEqualTo(expectedResults);
+        assertThat(results).isEqualTo(expectedResults);
+    }
+
+
+    @Test
+    void whenNonRegisteredElectorVotes_shouldThrow() {
+        final Elections elections = new Elections(CANDIDATES, ELECTORS_BY_DISTRICT, false);
+        final Elector elector = new Elector("Eugene (not registered)", DISTRICT_1);
+        final String candidate = CANDIDATES.get(0);
+
+        Exception exception = assertThrows(VotingException.class, () -> elections.voteFor(elector, candidate));
+
+        String expected = "Eugene (not registered) is not registered as Elector";
+        assertThat(exception.getMessage()).isEqualTo(expected);
+    }
+
+    @Test
+    void whenElectorVotesTwice_shouldThrow() {
+        final Elections elections = new Elections(CANDIDATES, ELECTORS_BY_DISTRICT, false);
+        final String candidate = CANDIDATES.get(0);
+
+        elections.voteFor(ANNA, candidate);
+        Exception exception = assertThrows(VotingException.class, () -> elections.voteFor(ANNA, candidate));
+
+        String expected = "Anna voted already";
+        assertThat(exception.getMessage()).isEqualTo(expected);
     }
 }

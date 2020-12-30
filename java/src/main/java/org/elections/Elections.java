@@ -6,17 +6,17 @@ import java.util.stream.Collectors;
 public class Elections {
     List<String> candidates = new ArrayList<>();
     List<String> officialCandidates = new ArrayList<>();
-    ArrayList<Integer> votesWithoutDistricts;
     Map<String, ArrayList<Integer>> votesWithDistricts;
     private final Map<String, List<String>> electorsByDistrict;
     private final boolean withDistrict;
+    private Voting votingStrategy;
 
     public Elections(Map<String, List<String>> electorsByDistrict, boolean withDistrict) {
         this.electorsByDistrict = electorsByDistrict;
         this.withDistrict = withDistrict;
 
         if (!this.withDistrict) {
-            votesWithoutDistricts = new ArrayList<>();
+            votingStrategy = new AllVotes();
         } else {
             votesWithDistricts = electorsByDistrict.keySet().stream()
                     .collect(Collectors.toMap(k -> k, v -> new ArrayList<>()));
@@ -28,7 +28,7 @@ public class Elections {
         candidates.add(candidate);
 
         if (!this.withDistrict) {
-            votesWithoutDistricts.add(0);
+            votingStrategy.addCandidate(candidate);
         } else {
             votesWithDistricts.forEach((k,v) -> v.add(0));
         }
@@ -36,13 +36,7 @@ public class Elections {
 
     public void voteFor(String candidate, String electorDistrict) {
         if (!withDistrict) {
-            if (candidates.contains(candidate)) {
-                int index = candidates.indexOf(candidate);
-                votesWithoutDistricts.set(index, votesWithoutDistricts.get(index) + 1);
-            } else {
-                candidates.add(candidate);
-                votesWithoutDistricts.add(1);
-            }
+            votingStrategy.addVote(candidate, electorDistrict);
         } else {
             if (votesWithDistricts.containsKey(electorDistrict)) {
                 ArrayList<Integer> districtVotes = votesWithDistricts.get(electorDistrict);
@@ -66,25 +60,7 @@ public class Elections {
         int nbValidVotes = 0;
 
         if (!withDistrict) {
-            nbVotes = votesWithoutDistricts.stream().reduce(0, Integer::sum);
-            for (String officialCandidate : officialCandidates) {
-                int index = candidates.indexOf(officialCandidate);
-                nbValidVotes += votesWithoutDistricts.get(index);
-            }
-
-            for (int i = 0; i < votesWithoutDistricts.size(); i++) {
-                String candidate = candidates.get(i);
-                Integer currentCandidateVotes = votesWithoutDistricts.get(i);
-                if (officialCandidates.contains(candidate)) {
-                    results.put(candidate, frenchFormattedResult(votingResult(currentCandidateVotes, nbValidVotes)));
-                } else {
-                    if (candidate.isEmpty()) {
-                        blankVotes += currentCandidateVotes;
-                    } else {
-                        nullVotes += currentCandidateVotes;
-                    }
-                }
-            }
+            return votingStrategy.results(electorsByDistrict);
         } else {
             for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
                 ArrayList<Integer> districtVotes = entry.getValue();

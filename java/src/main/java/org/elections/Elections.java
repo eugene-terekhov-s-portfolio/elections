@@ -11,9 +11,9 @@ public class Elections {
         this.electorsByDistrict = electorsByDistrict;
 
         if (!withDistrict) {
-            votingStrategy = new AllVotes();
+            votingStrategy = new AllVoting();
         } else {
-            votingStrategy = new DistrictVotes(electorsByDistrict);
+            votingStrategy = new DistrictVoting(electorsByDistrict);
         }
     }
 

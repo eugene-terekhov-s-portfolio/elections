@@ -1,20 +1,15 @@
 package org.elections;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AllVotes implements Voting {
+public class AllVoting extends BaseVoting implements Voting {
     private final List<Integer> votesWithoutDistricts = new ArrayList<>();
-    private final List<String> candidates = new ArrayList<>();
-    private final List<String> officialCandidates = new ArrayList<>();
 
     @Override
     public void addCandidate(String candidate) {
-        officialCandidates.add(candidate);
-        candidates.add(candidate);
-
+        addCandidateToLists(candidate);
         this.votesWithoutDistricts.add(0);
     }
 
@@ -31,12 +26,7 @@ public class AllVotes implements Voting {
 
     @Override
     public Map<String, String> results(Map<String, List<String>> electorsByDistrict) {
-        final Map<String, String> results = new HashMap<>();
-        Integer nullVotes = 0;
-        Integer blankVotes = 0;
-        int nbValidVotes = 0;
-
-        Integer nbVotes = this.votesWithoutDistricts.stream().reduce(0, Integer::sum);
+        nbVotes = this.votesWithoutDistricts.stream().reduce(0, Integer::sum);
         for (String officialCandidate : officialCandidates) {
             int index = candidates.indexOf(officialCandidate);
             nbValidVotes += this.votesWithoutDistricts.get(index);
@@ -46,22 +36,12 @@ public class AllVotes implements Voting {
             String candidate = candidates.get(i);
             Integer currentCandidateVotes = this.votesWithoutDistricts.get(i);
             if (officialCandidates.contains(candidate)) {
-                results.put(candidate, frenchFormattedResult(votingResult(currentCandidateVotes, nbValidVotes)));
+                results.put(candidate, getFormattedResult(currentCandidateVotes, nbValidVotes));
             } else {
-                if (candidate.isEmpty()) {
-                    blankVotes += currentCandidateVotes;
-                } else {
-                    nullVotes += currentCandidateVotes;
-                }
+                updateBlankOrNullVotesForCandidate(candidate, currentCandidateVotes);
             }
         }
-        results.put("Blank", frenchFormattedResult(votingResult(blankVotes, nbVotes)));
-        results.put("Null", frenchFormattedResult(votingResult(nullVotes, nbVotes)));
-
-        int nbElectors = electorsByDistrict.values().stream().map(List::size).reduce(0, Integer::sum);
-        results.put("Abstention", frenchFormattedResult(100 - (votingResult(nbVotes, nbElectors))));
-
+        addBlankAndNullAndAbstentVotesToResult(electorsByDistrict);
         return results;
     }
-
 }

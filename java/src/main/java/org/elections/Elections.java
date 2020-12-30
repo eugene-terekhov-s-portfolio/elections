@@ -1,32 +1,37 @@
 package org.elections;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Elections {
     List<String> candidates = new ArrayList<>();
     List<String> officialCandidates = new ArrayList<>();
-    ArrayList<Integer> votesWithoutDistricts = new ArrayList<>();
+    ArrayList<Integer> votesWithoutDistricts;
     Map<String, ArrayList<Integer>> votesWithDistricts;
-    private final Map<String, List<String>> list;
+    private final Map<String, List<String>> electorsByDistrict;
     private final boolean withDistrict;
 
-    public Elections(Map<String, List<String>> list, boolean withDistrict) {
-        this.list = list;
+    public Elections(Map<String, List<String>> electorsByDistrict, boolean withDistrict) {
+        this.electorsByDistrict = electorsByDistrict;
         this.withDistrict = withDistrict;
 
-        votesWithDistricts = new HashMap<>();
-        votesWithDistricts.put("District 1", new ArrayList<>());
-        votesWithDistricts.put("District 2", new ArrayList<>());
-        votesWithDistricts.put("District 3", new ArrayList<>());
+        if (!this.withDistrict) {
+            votesWithoutDistricts = new ArrayList<>();
+        } else {
+            votesWithDistricts = electorsByDistrict.keySet().stream()
+                    .collect(Collectors.toMap(k -> k, v -> new ArrayList<>()));
+        }
     }
 
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
         candidates.add(candidate);
-        votesWithoutDistricts.add(0);
-        votesWithDistricts.get("District 1").add(0);
-        votesWithDistricts.get("District 2").add(0);
-        votesWithDistricts.get("District 3").add(0);
+
+        if (!this.withDistrict) {
+            votesWithoutDistricts.add(0);
+        } else {
+            votesWithDistricts.forEach((k,v) -> v.add(0));
+        }
     }
 
     public void voteFor(String candidate, String electorDistrict) {
@@ -137,7 +142,7 @@ public class Elections {
             results.put("Blank", frenchFormattedResult(votingResult(blankVotes, nbVotes)));
             results.put("Null", frenchFormattedResult(votingResult(nullVotes, nbVotes)));
 
-            int nbElectors = list.values().stream().map(List::size).reduce(0, Integer::sum);
+            int nbElectors = electorsByDistrict.values().stream().map(List::size).reduce(0, Integer::sum);
             results.put("Abstention", frenchFormattedResult(100 - (votingResult(nbVotes, nbElectors))));
 
             return results;

@@ -9,7 +9,7 @@ public class Elections {
     private final List<Elector> electors = new ArrayList<>();
     private final Voting votingStrategy;
 
-    public Elections(Map<String, List<String>> electorsByDistrict, boolean withDistrict) {
+    public Elections(List<String> candidates, Map<String, List<String>> electorsByDistrict, boolean withDistrict) {
         this.electorsByDistrict = electorsByDistrict;
 
         if (!withDistrict) {
@@ -20,14 +20,18 @@ public class Elections {
         electorsByDistrict.forEach(
                 (district, names) -> names.forEach(name -> electors.add(new Elector(name, district)))
         );
+
+        for (String candidate : candidates) {
+            addCandidate(candidate);
+        }
     }
 
-    public void addCandidate(String candidate) {
+    private void addCandidate(String candidate) {
         votingStrategy.addCandidate(candidate);
     }
 
     public void voteFor(Elector elector, String candidate) {
-       votingStrategy.addVote(elector, candidate);
+        votingStrategy.addVote(elector, candidate);
     }
 
     public Map<String, String> results() {

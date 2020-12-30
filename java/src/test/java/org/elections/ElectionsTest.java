@@ -25,13 +25,11 @@ class ElectionsTest {
             DISTRICT_2, Arrays.asList("Jerry", "Simon"),
             DISTRICT_3, Arrays.asList("Johnny", "Matt", "Carole")
     );
+    private static final List<String> CANDIDATES = List.of("Michel", "Jerry", "Johnny");
 
     @Test
     void electionWithoutDistricts() {
-        Elections elections = new Elections(ELECTORS_BY_DISTRICT, false);
-        elections.addCandidate("Michel");
-        elections.addCandidate("Jerry");
-        elections.addCandidate("Johnny");
+        Elections elections = new Elections(CANDIDATES, ELECTORS_BY_DISTRICT, false);
 
         elections.voteFor(BOB, "Jerry");
         elections.voteFor(ANNA, "Johnny");
@@ -56,10 +54,7 @@ class ElectionsTest {
 
     @Test
     void electionWithDistricts() {
-        Elections elections = new Elections(ELECTORS_BY_DISTRICT, true);
-        elections.addCandidate("Michel");
-        elections.addCandidate("Jerry");
-        elections.addCandidate("Johnny");
+        Elections elections = new Elections(CANDIDATES, ELECTORS_BY_DISTRICT, true);
 
         elections.voteFor(BOB,"Jerry");
         elections.voteFor(ANNA, "Johnny");
